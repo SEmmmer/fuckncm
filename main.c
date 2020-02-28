@@ -4,6 +4,7 @@
 //#include "/usr/local/Cellar/openssl/1.0.2t/include/openssl/aes.h"
 //just for fun, LOL
 #include <openssl/aes.h>
+#include <ctype.h>
 
 int main() {
 
@@ -35,13 +36,19 @@ int main() {
     AES_KEY decode;
     private_AES_set_decrypt_key(firstKey, 128, &decode);
 
-    unsigned char massage1[4];
-    unsigned char massage2[4];
+    unsigned char massage1[128];
+    unsigned char massage2[128];
+
     printf("---AES Decryption started----\n");
-    AES_ecb_encrypt(Data, massage1, &encode, AES_ENCRYPT);
-    printf("%s\n", massage1);
-    AES_ecb_encrypt(massage1, massage2, &decode, AES_DECRYPT);
-    printf("%s\n", massage2);
+    for (int j = 0; j < 8; ++j) {
+        AES_ecb_encrypt(Data + j * 16, massage1 + j * 16, &encode, AES_ENCRYPT);
+    }
+    printf("密文：%s\n", massage1);
+    for (int i = 0; i < 8; ++i) {
+        AES_ecb_encrypt(massage1 + i * 16, massage2 + i * 16, &decode, AES_DECRYPT);
+    }
+
+    printf("解密后结果：%s\n", massage2);
     printf("---AES Decryption finished---\n");
     return 0;
 }
