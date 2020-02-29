@@ -41,18 +41,29 @@ int main() {
     private_AES_set_encrypt_key(firstKey, 128, &encode);
     AES_KEY decode;
     private_AES_set_decrypt_key(firstKey, 128, &decode);
-    unsigned char massage[128] = {0};
+    unsigned char massageOfKey[128] = {0};
 
     printf("\n---AES Decryption started----\n");
     for (int j = 0; j < 8; ++j) {
-        AES_ecb_encrypt(keyData + 16 * j, massage + 16 * j, &decode, AES_DECRYPT);
+        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &decode, AES_DECRYPT);
     }
-    printf("%.128s\n", massage);
-    for (int k = 17; k < 128 ; ++k) {
-//        printf("%c",massage[k]);
-        putchar(massage[k]);
+    printf("%.128s\n", massageOfKey);
+    for (int k = 17; k < 128; ++k) {
+        putchar(massageOfKey[k]);
     }
     printf("\n---AES Decryption finished---\n");
+
+    int metaLength = 0;
+    fread(&metaLength, 4, 1, aSong);
+    unsigned char *metaData = (unsigned char *) malloc(metaLength);
+    printf("%d\n", metaLength);
+    fread(metaData, metaLength, 1, aSong);
+    unsigned char messageOfMeta[metaLength];
+    for (int i = 0; i < metaLength; ++i) {
+        metaData[i] ^= 0x63;
+        printf("%x", metaData[i]);
+    }
+
     free(keyData);
     return 0;
 }
