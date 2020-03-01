@@ -4,7 +4,6 @@
 //#include "/usr/local/Cellar/openssl/1.0.2t/include/openssl/aes.h"
 //just for fun, LOL
 #include <openssl/aes.h>
-#include "libbase64.h"
 
 int main() {
 
@@ -72,7 +71,6 @@ int main() {
 //
 //
 //    printf("\n---AES Decryption finished---\n");
-
     free(keyData);
     free(metaData);
     keyData = NULL;
