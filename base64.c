@@ -119,7 +119,7 @@ base64_encode(const unsigned char *in, unsigned int inlen, char *out)
 }
 
 unsigned int
-base64_decode(const char *in, unsigned int inlen, unsigned char *out)
+base64_decode(const unsigned char *in, unsigned int inlen, unsigned char *out)
 {
 	unsigned int i;
 	unsigned int j;
