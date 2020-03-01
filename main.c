@@ -75,5 +75,7 @@ int main() {
 
     free(keyData);
     free(metaData);
+    keyData = NULL;
+    metaData = NULL;
     return 0;
 }
