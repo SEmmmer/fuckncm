@@ -4,7 +4,7 @@
 //#include "/usr/local/Cellar/openssl/1.0.2t/include/openssl/aes.h"
 //just for fun, LOL
 #include <openssl/aes.h>
-#include <ctype.h>
+#include "libbase64.h"
 
 int main() {
 
@@ -37,18 +37,16 @@ int main() {
     }
 //    unsigned char Data[128] = "Segmentation occurs while calling these two function with key-size=192 and 256";
 //    printf("%s\n", Data);
-    AES_KEY encode;
-    private_AES_set_encrypt_key(firstKey, 128, &encode);
-    AES_KEY decode;
-    private_AES_set_decrypt_key(firstKey, 128, &decode);
-    unsigned char massageOfKey[128] = {0};
+    AES_KEY key;
+    private_AES_set_decrypt_key(firstKey, 128, &key);
+    unsigned char massageOfKey[keyLength];
 
     printf("\n---AES Decryption started----\n");
-    for (int j = 0; j < 8; ++j) {
-        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &decode, AES_DECRYPT);
+    for (int j = 0; j < keyLength / 16; ++j) {
+        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &key, AES_DECRYPT);
     }
     printf("%.128s\n", massageOfKey);
-    for (int k = 17; k < 128; ++k) {
+    for (int k = 17; k < keyLength; ++k) {
         putchar(massageOfKey[k]);
     }
     printf("\n---AES Decryption finished---\n");
@@ -64,6 +62,18 @@ int main() {
         printf("%x", metaData[i]);
     }
 
+//
+//    AES_KEY meta;
+//    private_AES_set_decrypt_key(secondKey, 128, &meta);
+//    printf("\n---AES Decryption started----\n");
+//    for (int l = 0; l < metaLength / 16; ++l) {
+//        AES_ecb_encrypt(metaData + 16 * l, messageOfMeta + 16 * l,)
+//    }
+//
+//
+//    printf("\n---AES Decryption finished---\n");
+
     free(keyData);
+    free(metaData);
     return 0;
 }
