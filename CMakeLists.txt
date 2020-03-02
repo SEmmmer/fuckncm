@@ -9,7 +9,7 @@ link_directories(/usr/local/Cellar/openssl/1.0.2t/lib)
 
 
 
-add_executable(fuckncm main.c base64.c)
+add_executable(fuckncm main.c base64.c WjCryptLib_Rc4.c)
 add_executable(test test.c)
 #add_executable(base64 base64.c)
 

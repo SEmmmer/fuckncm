@@ -5,6 +5,7 @@
 //just for fun, LOL
 #include <openssl/aes.h>
 #include "base64.h"
+#include "WjCryptLib_Rc4.h"
 
 int main() {
 
