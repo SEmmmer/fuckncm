@@ -17,5 +17,7 @@ target_link_libraries(fuckncm ssl crypto)
 
 
 add_library(base64 STATIC base64.c)
+add_library(WjCryptLib_Rc4 STATIC WjCryptLib_Rc4.c)
 target_link_libraries(fuckncm base64)
 target_link_libraries(test base64)
+target_link_libraries(test WjCryptLib_Rc4)
