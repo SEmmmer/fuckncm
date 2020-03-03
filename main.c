@@ -40,15 +40,27 @@ int main() {
     AES_KEY key;
     private_AES_set_decrypt_key(firstKey, 128, &key);
     unsigned char massageOfKey[keyLength];
-
+    unsigned char rc4Key[keyLength - 17];
     printf("\n---AES Decryption started----\n");
     for (int j = 0; j < keyLength / 16; ++j) {
         AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &key, AES_DECRYPT);
     }
     for (int k = 17; k < keyLength; ++k) {
         putchar(massageOfKey[k]);
+        rc4Key[k - 17] = massageOfKey[k];
     }
     printf("\n---AES Decryption finished---\n");
+
+
+    printf("\n---RC4 Decryption started----\n");
+    unsigned char in;
+    unsigned char out;
+    Rc4XorWithKey(rc4Key,keyLength-17,0,,,);
+
+
+
+
+    printf("\n---RC4 Decryption finished---\n");
 
     int metaLength = 0;
     fread(&metaLength, 4, 1, aSong);
