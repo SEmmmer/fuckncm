@@ -53,9 +53,6 @@ int main() {
 
 
     printf("\n---RC4 Decryption started----\n");
-    unsigned char in;
-    unsigned char out;
-    Rc4XorWithKey(rc4Key,keyLength-17,0,,,);
 
 
 
