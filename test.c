@@ -19,7 +19,8 @@ int main() {
 
     FILE *newSong;
     newSong = fopen("tmp/out.mp3", "wb");
-
+    unsigned char chunk[0x8000] = {0};
+    int chunk_length = sizeof(chunk);
 //    m = open(os.path.join(os.path.split(file_path)[0],file_name),'wb')
 //    chunk = bytearray()
 //    while True:
