@@ -74,7 +74,7 @@ int main() {
     printf("%s\n", key_box);
     printf("%s\n", rc4Key);
 
-    printf("\n---RC4 Decryption finished---\n");
+    printf("---RC4 Decryption finished---\n");
 
     int metaLength = 0;
     fread(&metaLength, 4, 1, aSong);
