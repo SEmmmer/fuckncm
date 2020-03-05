@@ -16,7 +16,7 @@ int main() {
     const unsigned char secondKey[] = {0x23, 0x31, 0x34, 0x6C, 0x6A, 0x6B, 0x5F, 0x21,
                                        0x5C, 0x5D, 0x26, 0x30, 0x55, 0x3C, 0x27, 0x28};
 
-    FILE *aSong;
+    FILE *aSong = NULL;
     aSong = fopen("tmp/test.ncm", "rb");
 
     unsigned char buffer[8];
@@ -71,8 +71,10 @@ int main() {
         key_box[c] = swap;
         last_byte = c;
     }
-    printf("%s\n", key_box);
-    printf("%s\n", rc4Key);
+    for (int m = 0; m < 256; ++m) {
+        putchar(key_box[m]);
+    }    printf("\n%s\n", rc4Key);
+
 
     printf("---RC4 Decryption finished---\n");
 

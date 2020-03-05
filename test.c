@@ -16,9 +16,11 @@ int main() {
 //    image_data = f.read(image_size)
 //
 //    file_name = meta_data['musicName'] + '.' + meta_data['format']
-
-    FILE *newSong;
+    FILE *newSong = NULL;
+    FILE *aSong = NULL;
     newSong = fopen("tmp/out.mp3", "wb");
+    aSong = fopen("tmp/test.ncm", "rb");
+
     unsigned char chunk[0x8000] = {0};
     int chunk_length = sizeof(chunk);
 //    m = open(os.path.join(os.path.split(file_path)[0],file_name),'wb')
@@ -32,8 +34,16 @@ int main() {
 //          j = i & 0xff;
 //          chunk[i-1] ^= key_box[(key_box[j] + key_box[(key_box[j] + j) & 0xff]) & 0xff]
 //        m.write(chunk)
+    {
+        fread(chunk, chunk_length, 1, aSong);
+        if (!chunk) { break; }
+        for (int i = 1; i < chunk_length+1; ++i) {
+
+        }
+    }
 //    m.close()
 //    f.close()
 
+    printf("====================");
     return 0;
 }
