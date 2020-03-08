@@ -72,7 +72,8 @@ int main() {
         last_byte = c;
     }
     for (int m = 0; m < 256; ++m) {
-        putchar(key_box[m]);
+//        putchar(key_box[m]);
+        printf("0x%x,",key_box[m]);
     }    printf("\n%s\n", rc4Key);
 
 
