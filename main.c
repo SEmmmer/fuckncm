@@ -30,11 +30,9 @@ int main() {
     unsigned char *keyData = (unsigned char *) malloc(keyLength);
     fread(keyData, keyLength, 1, aSong);
     printf("%d\n", keyLength);
-    printf("%s\n", keyData);
 
     for (int i = 0; i < keyLength; ++i) {
         keyData[i] ^= 0x64;
-        printf(" %x", keyData[i]);
     }
 
     AES_KEY key;
@@ -81,6 +79,7 @@ int main() {
 
     int metaLength = 0;
     fread(&metaLength, 4, 1, aSong);
+    printf("%d\n",metaLength);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
 
     fread(metaData, metaLength, 1, aSong);
@@ -106,6 +105,11 @@ int main() {
     }
     printf("%s", messageOfMeta);
     printf("\n---AES Decryption finished---\n");
+
+
+    unsigned char image_space;
+    unsigned char image_size;
+    unsigned char image_data;
 
     free(keyData);
     free(metaData);
