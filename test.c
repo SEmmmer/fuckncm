@@ -47,18 +47,16 @@ int main() {
     int sum = 1;
 
     int size;
-    size = file_size(aSong);
-    printf("%d",size);
-//    while (sum) {
-//        sum = 0;
-//        fread(chunk, chunk_length, 1, aSong);
-//        for (int i = 1; i < chunk_length + 1; ++i) {
-//            j = i & 0xff;
-//            chunk[i - 1] ^= key_box[(key_box[j] + key_box[(key_box[j] + j) & 0xff]) & 0xff];
-//        }
-//        for (int k = 0; k < chunk_length; ++k) { sum += chunk[k]; }
-//        fwrite(chunk, chunk_length, 1, newSong);
-//    }
+    size = file_size("tmp/test.ncm");
+    printf("%d\n", size - 310110);
+    for (int loop = 0; loop <= (size - 310110) / 32768; loop++) {
+        fread(chunk, chunk_length, 1, aSong);
+        for (int i = 1; i < chunk_length + 1; ++i) {
+            j = i & 0xff;
+            chunk[i - 1] ^= key_box[(key_box[j] + key_box[(key_box[j] + j) & 0xff]) & 0xff];
+        }
+        fwrite(chunk, chunk_length, 1, newSong);
+    }
     printf("====================");
     return 0;
 }

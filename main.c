@@ -6,6 +6,14 @@
 #include <openssl/aes.h>
 #include "base64.h"
 #include "WjCryptLib_Rc4.h"
+#include <sys/stat.h>
+
+int file_size(char *filename) {
+    struct stat buf;
+    stat(filename, &buf);
+    int size = buf.st_size;
+    return size;
+}
 
 int main() {
 
@@ -17,7 +25,9 @@ int main() {
                                        0x5C, 0x5D, 0x26, 0x30, 0x55, 0x3C, 0x27, 0x28};
 
     FILE *aSong = NULL;
+    FILE *newSong = NULL;
     aSong = fopen("tmp/test.ncm", "rb");
+    newSong = fopen("tmp/out.mp3", "wb");
 
     unsigned char buffer[8];
     fread(buffer, 8, 1, aSong);
@@ -26,7 +36,6 @@ int main() {
     int keyLength = 0;
     fseek(aSong, 2, SEEK_CUR);
     fread(&keyLength, 4, 1, aSong);
-    printf("%d\n", keyLength);
 
     unsigned char *keyData = (unsigned char *) malloc(keyLength);
     fread(keyData, keyLength, 1, aSong);
@@ -70,15 +79,13 @@ int main() {
         last_byte = c;
     }
     for (int m = 0; m < 256; ++m) {
-//        putchar(key_box[m]);
-        printf("0x%x,", key_box[m]);
+        putchar(key_box[m]);
     }
 
-    printf("---RC4 Decryption finished---\n");
+    printf("\n---RC4 Decryption finished---\n");
 
     int metaLength = 0;
     fread(&metaLength, 4, 1, aSong);
-    printf("%d\n", metaLength);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
 
     fread(metaData, metaLength, 1, aSong);
@@ -111,12 +118,25 @@ int main() {
     int imageSize = 0;
     fread(&imageSpace, 4, 1, aSong);
     fread(&imageSize, 4, 1, aSong);
-    printf("%d\n", imageSize);
-    printf("%d\n", imageSpace);
     unsigned char imageData[imageSize];
-
+    fread(&imageData, imageSize, 1, aSong);
     fseek(aSong, imageSpace - imageSize, SEEK_CUR);
 
+    unsigned char chunk[0x8000] = {0};
+    int chunk_length = sizeof(chunk);
+    int j = 0;
+    int size;
+    size = file_size("tmp/test.ncm");
+    int position = ftell(aSong);
+    for (int loop = 0; loop <= (size - position) / 32768; loop++) {
+        fread(chunk, chunk_length, 1, aSong);
+        for (int i = 1; i < chunk_length + 1; ++i) {
+            j = i & 0xff;
+            chunk[i - 1] ^= key_box[(key_box[j] + key_box[(key_box[j] + j) & 0xff]) & 0xff];
+        }
+        fwrite(chunk, chunk_length, 1, newSong);
+    }
+    printf("\n\n---Decoding Finished---");
     free(keyData);
     free(metaData);
     keyData = NULL;
