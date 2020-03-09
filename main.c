@@ -24,12 +24,12 @@ int main() {
     if (memcmp(buffer, ncmFile, 8) != 0) { exit(1); }//不是ncm
 
     int keyLength = 0;
-    fseek(aSong, 10, SEEK_SET);
+    fseek(aSong, 2, SEEK_CUR);
     fread(&keyLength, 4, 1, aSong);
+    printf("%d\n", keyLength);
 
     unsigned char *keyData = (unsigned char *) malloc(keyLength);
     fread(keyData, keyLength, 1, aSong);
-    printf("%d\n", keyLength);
 
     for (int i = 0; i < keyLength; ++i) {
         keyData[i] ^= 0x64;
@@ -71,15 +71,14 @@ int main() {
     }
     for (int m = 0; m < 256; ++m) {
 //        putchar(key_box[m]);
-        printf("0x%x,",key_box[m]);
-    }    printf("\n%s\n", rc4Key);
-
+        printf("0x%x,", key_box[m]);
+    }
 
     printf("---RC4 Decryption finished---\n");
 
     int metaLength = 0;
     fread(&metaLength, 4, 1, aSong);
-    printf("%d\n",metaLength);
+    printf("%d\n", metaLength);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
 
     fread(metaData, metaLength, 1, aSong);
@@ -106,10 +105,17 @@ int main() {
     printf("%s", messageOfMeta);
     printf("\n---AES Decryption finished---\n");
 
+    fseek(aSong, 5, SEEK_CUR);
 
-    unsigned char image_space;
-    unsigned char image_size;
-    unsigned char image_data;
+    int imageSpace = 0;
+    int imageSize = 0;
+    fread(&imageSpace, 4, 1, aSong);
+    fread(&imageSize, 4, 1, aSong);
+    printf("%d\n", imageSize);
+    printf("%d\n", imageSpace);
+    unsigned char imageData[imageSize];
+
+    fseek(aSong, imageSpace - imageSize, SEEK_CUR);
 
     free(keyData);
     free(metaData);
