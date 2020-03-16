@@ -15,6 +15,21 @@ int file_size(char *filename) {
     return size;
 }
 
+void AES_Decryption(const char *keyData, AES_KEY *key) {
+    int keyLength = sizeof(keyData);
+    printf("\n---AES Decryption started----\n");
+    for (int j = 0; j < keyLength / 16; ++j) {
+        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, key, AES_DECRYPT);
+    }
+    for (int k = 17; k < keyLength; ++k) {
+        putchar(massageOfKey[k]);
+        rc4Key[k - 17] = massageOfKey[k];
+    }
+
+    printf("\n---AES Decryption finished---\n");
+
+}
+
 int main() {
 
     const unsigned char ncmFile[] = "CTENFDAM";
@@ -36,18 +51,18 @@ int main() {
     //读取key的长度和数据
     int keyLength = 0;
     fseek(aSong, 2, SEEK_CUR);
-    fread(&keyLength, 4, 1, aSong);
+    fread(&keyLength, sizeof(int), 1, aSong);
+
     unsigned char *keyData = (unsigned char *) malloc(keyLength);
     fread(keyData, keyLength, 1, aSong);
-    for (int i = 0; i < keyLength; ++i) {
-        keyData[i] ^= 0x64;
-    }
+    for (int i = 0; i < keyLength; ++i) { keyData[i] ^= 0x64; }
     //在解密前对key做异或运算，原理未知
 
     AES_KEY key;
     private_AES_set_decrypt_key(firstKey, 128, &key);
     unsigned char massageOfKey[keyLength];
     unsigned char rc4Key[keyLength - 17];
+    AES_Decryption(keyData, &key);
 
     //开始第一部分的解密，还原key之后用于还原媒体文件
     printf("\n---AES Decryption started----\n");
