@@ -58,13 +58,16 @@ int main() {
     for (int i = 0; i < keyLength; ++i) { keyData[i] ^= 0x64; }
     //在解密前对key做异或运算，原理未知
 
-    AES_KEY key;
-    private_AES_set_decrypt_key(firstKey, 128, &key);
     unsigned char massageOfKey[keyLength];
     unsigned char rc4Key[keyLength - 17];
     //开始第一部分的解密，还原key之后用于还原媒体文件
     AES_Decryption(keyData, firstKey, keyLength, massageOfKey);
-    printf("%s", massageOfKey);
+    for (int k = 17; k < keyLength; ++k) {
+        rc4Key[k - 17] = massageOfKey[k];
+    }
+    printf("%s\n", massageOfKey);
+    printf("%s\n", rc4Key);
+
     return 0;
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
     //这里代码风格有一些不一样
