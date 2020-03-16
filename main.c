@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "/usr/local/Cellar/openssl/1.0.2t/include/openssl/aes.h"
-//just for fun, LOL
 #include <openssl/aes.h>
 #include "base64.h"
 #include "WjCryptLib_Rc4.h"
@@ -15,19 +13,17 @@ int file_size(char *filename) {
     return size;
 }
 
-void AES_Decryption(const char *keyData, AES_KEY *key) {
-    int keyLength = sizeof(keyData);
+void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char) {
+    AES_KEY key;
+    private_AES_set_decrypt_key(inKey, 128, &key);
+    unsigned char massage[size];
+
     printf("\n---AES Decryption started----\n");
-    for (int j = 0; j < keyLength / 16; ++j) {
-        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, key, AES_DECRYPT);
+    for (int j = 0; j < size / 16; ++j) {
+        AES_ecb_encrypt(data + 16 * j, massage + 16 * j, &key, AES_DECRYPT);
     }
-    for (int k = 17; k < keyLength; ++k) {
-        putchar(massageOfKey[k]);
-        rc4Key[k - 17] = massageOfKey[k];
-    }
-
+    printf("%s", massage);
     printf("\n---AES Decryption finished---\n");
-
 }
 
 int main() {
@@ -62,9 +58,10 @@ int main() {
     private_AES_set_decrypt_key(firstKey, 128, &key);
     unsigned char massageOfKey[keyLength];
     unsigned char rc4Key[keyLength - 17];
-    AES_Decryption(keyData, &key);
-
     //开始第一部分的解密，还原key之后用于还原媒体文件
+
+    AES_Decryption(keyData, firstKey, keyLength);
+
     printf("\n---AES Decryption started----\n");
     for (int j = 0; j < keyLength / 16; ++j) {
         AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &key, AES_DECRYPT);
@@ -75,6 +72,7 @@ int main() {
     }
     printf("\n---AES Decryption finished---\n");
 
+    return 0;
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
     //这里代码风格有一些不一样
     printf("\n---RC4 Decryption started----\n");
