@@ -13,7 +13,7 @@ int file_size(char *filename) {
     return size;
 }
 
-void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char) {
+void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
     unsigned char massage[size];
@@ -22,7 +22,11 @@ void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size
     for (int j = 0; j < size / 16; ++j) {
         AES_ecb_encrypt(data + 16 * j, massage + 16 * j, &key, AES_DECRYPT);
     }
+    for (int i = 0; i < size; ++i) {
+        *(outData + i) = massage[i];
+    }
     printf("%s", massage);
+
     printf("\n---AES Decryption finished---\n");
 }
 
@@ -59,19 +63,8 @@ int main() {
     unsigned char massageOfKey[keyLength];
     unsigned char rc4Key[keyLength - 17];
     //开始第一部分的解密，还原key之后用于还原媒体文件
-
-    AES_Decryption(keyData, firstKey, keyLength);
-
-    printf("\n---AES Decryption started----\n");
-    for (int j = 0; j < keyLength / 16; ++j) {
-        AES_ecb_encrypt(keyData + 16 * j, massageOfKey + 16 * j, &key, AES_DECRYPT);
-    }
-    for (int k = 17; k < keyLength; ++k) {
-        putchar(massageOfKey[k]);
-        rc4Key[k - 17] = massageOfKey[k];
-    }
-    printf("\n---AES Decryption finished---\n");
-
+    AES_Decryption(keyData, firstKey, keyLength, massageOfKey);
+    printf("%s", massageOfKey);
     return 0;
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
     //这里代码风格有一些不一样
