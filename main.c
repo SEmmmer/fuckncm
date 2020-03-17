@@ -5,13 +5,6 @@
 #include "base64.h"
 #include <sys/stat.h>
 
-int file_size(char *filename) {
-    struct stat buf;
-    stat(filename, &buf);
-    int size = buf.st_size;
-    return size;
-}
-
 void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
@@ -20,7 +13,6 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
     printf("\n---AES Decryption started----\n");
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
     for (int i = 0; i < size; ++i) { *(outData + i) = message[i]; }
-    printf("%s", message);
     printf("\n---AES Decryption finished---\n");
 }
 
@@ -43,6 +35,26 @@ void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *key
         lastByte = c;
     }
     printf("\n---RC4 Decryption finished---\n");
+}
+
+void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
+    long position = ftell(ncmFile);
+    fseek(ncmFile, 0, SEEK_END);
+    long fileSize = ftell(ncmFile);
+    fseek(ncmFile, position, SEEK_SET);
+
+    int j = 0;
+    unsigned char chunk[0x8000] = {0};
+    int chunkLength = sizeof(chunk);
+
+    for (long loop = 0; loop <= (fileSize - position) / chunkLength; loop++) {
+        fread(chunk, chunkLength, 1, ncmFile);
+        for (int i = 1; i < chunkLength + 1; ++i) {
+            j = i & 0xff;
+            chunk[i - 1] ^= keyBox[(keyBox[j] + keyBox[(keyBox[j] + j) & 0xff]) & 0xff];
+        }
+        fwrite(chunk, chunkLength, 1, outFile);
+    }
 }
 
 int main() {
@@ -106,20 +118,8 @@ int main() {
     fseek(aSong, imageSpace - imageSize, SEEK_CUR);
 
     //最重要的部分，对文件进行解密还原出mp3文件
-    unsigned char chunk[0x8000] = {0};
-    int chunk_length = sizeof(chunk);
-    int j = 0;
-    int fileSize = file_size("tmp/test.ncm");
-    int position = ftell(aSong);
-    for (int loop = 0; loop <= (fileSize - position) / 32768; loop++) {
-        fread(chunk, chunk_length, 1, aSong);
-        for (int i = 1; i < chunk_length + 1; ++i) {
-            j = i & 0xff;
-            chunk[i - 1] ^= keyBox[(keyBox[j] + keyBox[(keyBox[j] + j) & 0xff]) & 0xff];
-        }
-        fwrite(chunk, chunk_length, 1, newSong);
-    }
-    printf("\n\n---Decoding Finished---");
+    audioDecoding(aSong, newSong, keyBox);
+
     free(keyData);
     free(metaData);
     keyData = NULL;
