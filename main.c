@@ -3,7 +3,6 @@
 #include <string.h>
 #include <openssl/aes.h>
 #include "base64.h"
-#include "WjCryptLib_Rc4.h"
 #include <sys/stat.h>
 
 int file_size(char *filename) {
@@ -13,21 +12,20 @@ int file_size(char *filename) {
     return size;
 }
 
-void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
+void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
     unsigned char message[size];
 
     printf("\n---AES Decryption started----\n");
-    for (int j = 0; j < size / 16; ++j) {
-        AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT);
-    }
-    for (int i = 0; i < size; ++i) {
-        *(outData + i) = message[i];
-    }
+    for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
+    for (int i = 0; i < size; ++i) { *(outData + i) = message[i]; }
     printf("%s", message);
-
     printf("\n---AES Decryption finished---\n");
+}
+
+void RC4_Decryption() {
+
 }
 
 int main() {
@@ -52,7 +50,6 @@ int main() {
     int keyLength = 0;
     fseek(aSong, 2, SEEK_CUR);
     fread(&keyLength, sizeof(int), 1, aSong);
-
     unsigned char *keyData = (unsigned char *) malloc(keyLength);
     fread(keyData, keyLength, 1, aSong);
     for (int i = 0; i < keyLength; ++i) { keyData[i] ^= 0x64; }
@@ -63,8 +60,6 @@ int main() {
     //开始第一部分的解密，还原key之后用于还原媒体文件
     AES_Decryption(keyData, firstKey, keyLength, messageOfKey);
     for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
-    printf("%s\n", messageOfKey);
-    printf("%s\n", rc4Key);
 
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
     //这里代码风格有一些不一样
@@ -96,17 +91,15 @@ int main() {
     int metaLength = 0;
     fread(&metaLength, sizeof(int), 1, aSong);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
-
     fread(metaData, metaLength, 1, aSong);
-    unsigned char messageOfMeta_row[metaLength - 22];
+    unsigned char metaData2[metaLength - 22];
     unsigned char messageOfMeta[metaLength];
     for (int i = 0; i < metaLength; ++i) { metaData[i] ^= 0x63; }
     //解密前进行异或运算，原理未知
-    base64_decode(metaData + 22, metaLength - 22, messageOfMeta_row);
 
-    AES_Decryption(messageOfMeta_row, secondKey, metaLength, messageOfMeta);
+    base64_decode(metaData + 22, metaLength - 22, metaData2);
+    AES_Decryption(metaData2, secondKey, metaLength, messageOfMeta);
     for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
-    printf("%s\n", messageOfMeta);
     //解密并且进行输出，之后有精力会考虑加入json字典
 
     fseek(aSong, 5, SEEK_CUR);
