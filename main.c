@@ -16,16 +16,16 @@ int file_size(char *filename) {
 void *AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
-    unsigned char massage[size];
+    unsigned char message[size];
 
     printf("\n---AES Decryption started----\n");
     for (int j = 0; j < size / 16; ++j) {
-        AES_ecb_encrypt(data + 16 * j, massage + 16 * j, &key, AES_DECRYPT);
+        AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT);
     }
     for (int i = 0; i < size; ++i) {
-        *(outData + i) = massage[i];
+        *(outData + i) = message[i];
     }
-    printf("%s", massage);
+    printf("%s", message);
 
     printf("\n---AES Decryption finished---\n");
 }
@@ -58,17 +58,14 @@ int main() {
     for (int i = 0; i < keyLength; ++i) { keyData[i] ^= 0x64; }
     //在解密前对key做异或运算，原理未知
 
-    unsigned char massageOfKey[keyLength];
+    unsigned char messageOfKey[keyLength];
     unsigned char rc4Key[keyLength - 17];
     //开始第一部分的解密，还原key之后用于还原媒体文件
-    AES_Decryption(keyData, firstKey, keyLength, massageOfKey);
-    for (int k = 17; k < keyLength; ++k) {
-        rc4Key[k - 17] = massageOfKey[k];
-    }
-    printf("%s\n", massageOfKey);
+    AES_Decryption(keyData, firstKey, keyLength, messageOfKey);
+    for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
+    printf("%s\n", messageOfKey);
     printf("%s\n", rc4Key);
 
-    return 0;
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
     //这里代码风格有一些不一样
     printf("\n---RC4 Decryption started----\n");
@@ -97,33 +94,20 @@ int main() {
 
     //回到文件继续读取meta，其中包含了歌曲的主要信息
     int metaLength = 0;
-    fread(&metaLength, 4, 1, aSong);
+    fread(&metaLength, sizeof(int), 1, aSong);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
 
     fread(metaData, metaLength, 1, aSong);
     unsigned char messageOfMeta_row[metaLength - 22];
     unsigned char messageOfMeta[metaLength];
-    for (int i = 0; i < metaLength; ++i) {
-        metaData[i] ^= 0x63;
-    }
+    for (int i = 0; i < metaLength; ++i) { metaData[i] ^= 0x63; }
     //解密前进行异或运算，原理未知
     base64_decode(metaData + 22, metaLength - 22, messageOfMeta_row);
 
-    AES_KEY meta;
-    private_AES_set_decrypt_key(secondKey, 128, &meta);
-
+    AES_Decryption(messageOfMeta_row, secondKey, metaLength, messageOfMeta);
+    for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
+    printf("%s\n", messageOfMeta);
     //解密并且进行输出，之后有精力会考虑加入json字典
-    printf("\n---AES Decryption started----\n");
-    for (int l = 0; l < metaLength / 16; ++l) {
-        AES_ecb_encrypt(messageOfMeta_row + 16 * l, messageOfMeta + 16 * l, &meta, AES_DECRYPT);
-    }
-    for (int n = 0; n < metaLength - 22; ++n) {
-        if (messageOfMeta[n] == 0x7D) {
-            messageOfMeta[n + 1] = 0;
-        }
-    }
-    printf("%s", messageOfMeta);
-    printf("\n---AES Decryption finished---\n");
 
     fseek(aSong, 5, SEEK_CUR);
     //获得歌曲的封面信息
