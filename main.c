@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/aes.h>
-#include "base64.h"
+#include "otherFun/base64.h"
 #include "myfun.h"
 
 int main() {
