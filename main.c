@@ -10,14 +10,11 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
     private_AES_set_decrypt_key(inKey, 128, &key);
     unsigned char message[size];
 
-    printf("\n---AES Decryption started----\n");
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
     for (int i = 0; i < size; ++i) { *(outData + i) = message[i]; }
-    printf("\n---AES Decryption finished---\n");
 }
 
 void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *keyBox) {
-    printf("\n---RC4 Decryption started----\n");
     for (int j = 0; j < 256; ++j) { keyBox[j] = j; }
 
     int keyOffset = 0;
@@ -34,7 +31,6 @@ void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *key
         keyBox[c] = swap;
         lastByte = c;
     }
-    printf("\n---RC4 Decryption finished---\n");
 }
 
 void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
@@ -107,19 +103,18 @@ int main() {
     for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
     //解密并且进行输出，之后有精力会考虑加入json字典
 
-    fseek(aSong, 5, SEEK_CUR);
     //获得歌曲的封面信息
+    fseek(aSong, 5, SEEK_CUR);
     int imageSpace = 0;
     int imageSize = 0;
-    fread(&imageSpace, 4, 1, aSong);
-    fread(&imageSize, 4, 1, aSong);
+    fread(&imageSpace, sizeof(int), 1, aSong);
+    fread(&imageSize, sizeof(int), 1, aSong);
     unsigned char imageData[imageSize];
     fread(&imageData, imageSize, 1, aSong);
     fseek(aSong, imageSpace - imageSize, SEEK_CUR);
 
     //最重要的部分，对文件进行解密还原出mp3文件
     audioDecoding(aSong, newSong, keyBox);
-
     free(keyData);
     free(metaData);
     keyData = NULL;
