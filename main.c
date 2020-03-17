@@ -76,11 +76,9 @@ int main() {
     for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
 
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算keyBox
-
     int rc4Length = sizeof(rc4Key) - 1;
     unsigned char keyBox[256];
     RC4_Decryption(rc4Key, rc4Length, keyBox);
-
 
     //回到文件继续读取meta，其中包含了歌曲的主要信息
     int metaLength = 0;
