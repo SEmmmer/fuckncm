@@ -24,14 +24,28 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
     printf("\n---AES Decryption finished---\n");
 }
 
-void RC4_Decryption() {
+void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *keyBox) {
+    printf("\n---RC4 Decryption started----\n");
+    for (int j = 0; j < 256; ++j) { keyBox[j] = j; }
 
+    int keyOffset = 0;
+    unsigned char c = 0x00;
+    unsigned char swap = 0x00;
+    unsigned char lastByte = 0x00;
+
+    for (int i = 0; i < 256; ++i) {
+        swap = keyBox[i];
+        c = (swap + lastByte + rc4Key[keyOffset]) & 0xff;
+        keyOffset += 1;
+        if (keyOffset >= size) { keyOffset = 0; }
+        keyBox[i] = keyBox[c];
+        keyBox[c] = swap;
+        lastByte = c;
+    }
+    printf("\n---RC4 Decryption finished---\n");
 }
 
 int main() {
-
-    const unsigned char ncmFile[] = "CTENFDAM";
-
     const unsigned char firstKey[] = {0x68, 0x7A, 0x48, 0x52, 0x41, 0x6D, 0x73, 0x6F,
                                       0x35, 0x6B, 0x49, 0x6E, 0x62, 0x61, 0x78, 0x57};
     const unsigned char secondKey[] = {0x23, 0x31, 0x34, 0x6C, 0x6A, 0x6B, 0x5F, 0x21,
@@ -44,7 +58,7 @@ int main() {
 
     unsigned char buffer[8];
     fread(buffer, 8, 1, aSong);
-    if (memcmp(buffer, ncmFile, 8) != 0) { exit(1); }//不是ncm
+    if (memcmp(buffer, "CTENFDAM", 8) != 0) { exit(1); }//不是ncm
 
     //读取key的长度和数据
     int keyLength = 0;
@@ -61,42 +75,23 @@ int main() {
     AES_Decryption(keyData, firstKey, keyLength, messageOfKey);
     for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
 
-    //第二部分的解密，用的是RC4的算法，通过rc4Key计算key_box
-    //这里代码风格有一些不一样
-    printf("\n---RC4 Decryption started----\n");
-    int key_length = sizeof(rc4Key) - 1;
-    unsigned char key_box[256] = {0};
-    for (int j = 0; j < 256; ++j) { key_box[j] = j; }
+    //第二部分的解密，用的是RC4的算法，通过rc4Key计算keyBox
 
-    unsigned char c = 0x00;
-    unsigned char last_byte = 0x00;
-    int key_offset = 0;
-    unsigned char swap = 0x00;
+    int rc4Length = sizeof(rc4Key) - 1;
+    unsigned char keyBox[256];
+    RC4_Decryption(rc4Key, rc4Length, keyBox);
 
-    for (int i = 0; i < 256; ++i) {
-        swap = key_box[i];
-        c = (swap + last_byte + rc4Key[key_offset]) & 0xff;
-        key_offset += 1;
-        if (key_offset >= key_length) { key_offset = 0; }
-        key_box[i] = key_box[c];
-        key_box[c] = swap;
-        last_byte = c;
-    }
-    for (int m = 0; m < 256; ++m) {
-        putchar(key_box[m]);
-    }
-    printf("\n---RC4 Decryption finished---\n");
 
     //回到文件继续读取meta，其中包含了歌曲的主要信息
     int metaLength = 0;
     fread(&metaLength, sizeof(int), 1, aSong);
     unsigned char *metaData = (unsigned char *) malloc(metaLength);
     fread(metaData, metaLength, 1, aSong);
-    unsigned char metaData2[metaLength - 22];
-    unsigned char messageOfMeta[metaLength];
     for (int i = 0; i < metaLength; ++i) { metaData[i] ^= 0x63; }
     //解密前进行异或运算，原理未知
 
+    unsigned char metaData2[metaLength - 22];
+    unsigned char messageOfMeta[metaLength];
     base64_decode(metaData + 22, metaLength - 22, metaData2);
     AES_Decryption(metaData2, secondKey, metaLength, messageOfMeta);
     for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
@@ -122,7 +117,7 @@ int main() {
         fread(chunk, chunk_length, 1, aSong);
         for (int i = 1; i < chunk_length + 1; ++i) {
             j = i & 0xff;
-            chunk[i - 1] ^= key_box[(key_box[j] + key_box[(key_box[j] + j) & 0xff]) & 0xff];
+            chunk[i - 1] ^= keyBox[(keyBox[j] + keyBox[(keyBox[j] + j) & 0xff]) & 0xff];
         }
         fwrite(chunk, chunk_length, 1, newSong);
     }
