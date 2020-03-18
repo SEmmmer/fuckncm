@@ -56,14 +56,11 @@ void test_jsonc() {
 
     printf("%s\n", json_object_to_json_string(result_object));
 
-
     result_object = json_object_object_get(infor_object, "array");
 
     printf("%s\n", json_object_to_json_string(result_object));
 
-
-    int i;
-    for (i = 0; i < json_object_array_length(result_object); i++) {
+    for (int i = 0; i < json_object_array_length(result_object); i++) {
         struct json_object *obj = json_object_array_get_idx(result_object, i);
         printf("\t[%d]=%s\n", i, json_object_to_json_string(obj));
     }
@@ -72,10 +69,49 @@ void test_jsonc() {
 
 }
 
+void json2() {
+    struct json_object *musicName = NULL;
+    musicName = json_object_new_object();
+    if (NULL == musicName) {
+        printf("new json object failed.\n");
+        return;
+    }
+
+    struct json_object *format = NULL;
+    format = json_object_new_object();
+    if (NULL == format) {
+        json_object_put(musicName);//free
+        printf("new json object failed.\n");
+        return;
+    }
+
+    struct json_object *artist = NULL;
+    artist = json_object_new_array();
+    if (NULL == artist) {
+        json_object_put(musicName);//free
+        json_object_put(format);//free
+        printf("new json object failed.\n");
+        return;
+    }
+    struct json_object *album = NULL;
+    album = json_object_new_array();
+    if (NULL == album) {
+        json_object_put(musicName);//free
+        json_object_put(format);//free
+        json_object_put(artist);//free
+        printf("new json object failed.\n");
+        return;
+    }
+
+    json_object_from_file("tmp/tmp.json");
+}
+
 
 int main(int argc, char *argv[]) {
 
-    test_jsonc();
-
+//    test_jsonc();
+    json2();
+    void *app = json_object_from_file("tmp/tmp.json");
+    printbuf_free()
     return 0;
 }
