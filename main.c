@@ -4,6 +4,7 @@
 #include <openssl/aes.h>
 #include "otherFun/base64.h"
 #include "myfun.h"
+#include <json-c/json.h>
 
 int main() {
     const unsigned char firstKey[] = {0x68, 0x7A, 0x48, 0x52, 0x41, 0x6D, 0x73, 0x6F,
@@ -13,8 +14,10 @@ int main() {
     //两段从天上掉下来的密钥
     FILE *aSong = NULL;
     FILE *newSong = NULL;
+    FILE *newJson = NULL;
     aSong = fopen("tmp/test.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
+    newJson = fopen("tmp/tmp.json", "wb");
 
     unsigned char buffer[8];
     fread(buffer, 8, 1, aSong);
@@ -54,6 +57,10 @@ int main() {
     AES_Decryption(metaData2, secondKey, metaLength, messageOfMeta);
     for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
     //解密并且进行输出，之后有精力会考虑加入json字典
+    for (int j = 6;; ++j) {
+        fwrite(messageOfMeta + j, 1, 1, newJson);
+        if (messageOfMeta[j] == 0x7D) { break; }
+    }
 
     //获得歌曲的封面信息
     fseek(aSong, 5, SEEK_CUR);

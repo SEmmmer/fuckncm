@@ -5,8 +5,6 @@
 #ifndef FUCKNCM_MYFUN_H
 #define FUCKNCM_MYFUN_H
 
-
-
 void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
