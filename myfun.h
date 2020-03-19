@@ -9,8 +9,10 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
     unsigned char message[size];
+    printf("message = %zu\n", size);
 
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
+    printf("%s\n", message);
     for (int i = 0; i < size; ++i) { *(outData + i) = message[i]; }
 }
 
@@ -18,15 +20,15 @@ void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *key
     for (int j = 0; j < 256; ++j) { keyBox[j] = j; }
 
     int keyOffset = 0;
-    unsigned char c = 0x00;
-    unsigned char swap = 0x00;
-    unsigned char lastByte = 0x00;
+    unsigned char c = 0;
+    unsigned char swap = 0;
+    unsigned char lastByte = 0;
 
     for (int i = 0; i < 256; ++i) {
         swap = keyBox[i];
         c = (swap + lastByte + rc4Key[keyOffset]) & 0xff;
         keyOffset += 1;
-        if (keyOffset >= size) { keyOffset = 0; }
+        if (keyOffset > size) { keyOffset = 0; }
         keyBox[i] = keyBox[c];
         keyBox[c] = swap;
         lastByte = c;
@@ -42,7 +44,7 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     printf("%ld\n", fileSize);
 
     int j = 0;
-    unsigned char chunk[0x8000] = {0};
+    unsigned char chunk[0x8000];
     int chunkLength = sizeof(chunk);
 
     for (long loop = 0; loop <= (fileSize - position) / chunkLength; loop++) {
