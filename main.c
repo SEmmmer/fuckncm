@@ -22,16 +22,17 @@ int main() {
     newJson = fopen("tmp/tmp.json", "wb");
     cover = fopen("tmp/cover.txt", "wb");
 
-    unsigned char buffer[8];
+    unsigned char buffer[9];
     fread(buffer, 8, 1, aSong);
+    buffer[8] = '\0';
     if (memcmp(buffer, "CTENFDAM", 8) != 0) { exit(1); }//不是ncm
 
     //读取key的长度和数据
     int keyLength = 0;
     fseek(aSong, 2, SEEK_CUR);
     fread(&keyLength, sizeof(int), 1, aSong);
-    printf("%d\n", keyLength);
-    unsigned char *keyData = (unsigned char *) malloc(keyLength);
+    unsigned char *keyData = (unsigned char *) malloc(keyLength + 1);
+    keyData[keyLength] = '\0';
     fread(keyData, keyLength, 1, aSong);
     for (int i = 0; i < keyLength; ++i) { keyData[i] ^= 0x64; }
     //在解密前对key做异或运算，原理未知
@@ -60,13 +61,11 @@ int main() {
     unsigned char messageOfMeta[metaLength];
     base64_decode(metaData + 22, metaLength - 22, metaData2);
     AES_Decryption(metaData2, secondKey, metaLength, messageOfMeta);
-    for (int n = 0; n < metaLength - 22; ++n) { if (messageOfMeta[n] == 0x7D) { messageOfMeta[n + 1] = 0; }}
     //解密并且进行输出，之后有精力会考虑加入json字典
     for (int j = 6;; ++j) {
         fwrite(messageOfMeta + j, 1, 1, newJson);
         if (messageOfMeta[j] == 0x7D) { break; }
     }
-    printf("%s\n", messageOfMeta);
 
     //获得歌曲的封面信息
     fseek(aSong, 5, SEEK_CUR);
@@ -77,6 +76,8 @@ int main() {
     unsigned char imageData[imageSize];
     fread(&imageData, imageSize, 1, aSong);
     fwrite(&imageData, imageSize, 1, cover);
+    fseek(aSong, imageSpace - imageSize, SEEK_CUR);
+
 
     //最重要的部分，对文件进行解密还原出mp3文件
     audioDecoding(aSong, newSong, keyBox);

@@ -8,12 +8,14 @@
 void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
-    unsigned char message[size];
+    unsigned char message[size + 1];
+    message[size] = '\0';
     printf("message = %zu\n", size);
 
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
+    for (int n = 0; n < size; ++n) { if (message[n] == 0x7D) { message[n + 1] = '\0'; }}
+    for (int i = 0; i <= size; ++i) { *(outData + i) = message[i]; }
     printf("%s\n", message);
-    for (int i = 0; i < size; ++i) { *(outData + i) = message[i]; }
 }
 
 void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *keyBox) {
