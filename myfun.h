@@ -30,7 +30,7 @@ void RC4_Decryption(const unsigned char *rc4Key, size_t size, unsigned char *key
         swap = keyBox[i];
         c = (swap + lastByte + rc4Key[keyOffset]) & 0xff;
         keyOffset += 1;
-        if (keyOffset > size) { keyOffset = 0; }
+        if (keyOffset >= size) { keyOffset = 0; }
         keyBox[i] = keyBox[c];
         keyBox[c] = swap;
         lastByte = c;
@@ -49,7 +49,7 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     unsigned char chunk[0x8000];
     int chunkLength = sizeof(chunk);
 
-    for (long loop = 0; loop <= (fileSize - position) / chunkLength; loop++) {
+    for (long loop = 0; loop <= (fileSize - position) / 32768; loop++) {
         fread(chunk, chunkLength, 1, ncmFile);
         for (int i = 1; i < chunkLength + 1; ++i) {
             j = i & 0xff;

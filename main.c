@@ -42,12 +42,10 @@ int main() {
     //开始第一部分的解密，还原key之后用于还原媒体文件
     AES_Decryption(keyData, firstKey, keyLength, messageOfKey);
     for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
-    printf("%s\n", rc4Key);
-
 
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算keyBox
     unsigned char keyBox[256];
-    RC4_Decryption(rc4Key, keyLength - 17, keyBox);
+    RC4_Decryption(rc4Key, keyLength - 18, keyBox);
 
     //回到文件继续读取meta，其中包含了歌曲的主要信息
     int metaLength = 0;
@@ -68,11 +66,11 @@ int main() {
     }
 
     //获得歌曲的封面信息
-    fseek(aSong, 5, SEEK_CUR);
+    fseek(aSong, 9, SEEK_CUR);
     int imageSpace = 0;
     int imageSize = 0;
     fread(&imageSpace, sizeof(int), 1, aSong);
-    fread(&imageSize, sizeof(int), 1, aSong);
+//    fread(&imageSize, sizeof(int), 1, aSong);
     unsigned char imageData[imageSize];
     fread(&imageData, imageSize, 1, aSong);
     fwrite(&imageData, imageSize, 1, cover);
@@ -81,6 +79,7 @@ int main() {
 
     //最重要的部分，对文件进行解密还原出mp3文件
     audioDecoding(aSong, newSong, keyBox);
+
     free(keyData);
     free(metaData);
     keyData = NULL;
