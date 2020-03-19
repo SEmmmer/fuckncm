@@ -20,7 +20,7 @@ int main() {
 //    aSong = fopen("tmp/new.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
-    cover = fopen("tmp/cover.txt", "wb");
+    cover = fopen("tmp/cover.jpeg", "wb");
 
     unsigned char buffer[9];
     fread(buffer, 8, 1, aSong);
