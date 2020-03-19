@@ -15,9 +15,12 @@ int main() {
     FILE *aSong = NULL;
     FILE *newSong = NULL;
     FILE *newJson = NULL;
-    aSong = fopen("tmp/test.ncm", "rb");
+    FILE *cover = NULL;
+//    aSong = fopen("tmp/test.ncm", "rb");
+    aSong = fopen("tmp/new.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
+    cover = fopen("tmp/cover.jpg", "wb");
 
     unsigned char buffer[8];
     fread(buffer, 8, 1, aSong);
@@ -70,7 +73,7 @@ int main() {
     fread(&imageSize, sizeof(int), 1, aSong);
     unsigned char imageData[imageSize];
     fread(&imageData, imageSize, 1, aSong);
-    fseek(aSong, imageSpace - imageSize, SEEK_CUR);
+    fwrite(&imageData, imageSize, 1, cover);
 
     //最重要的部分，对文件进行解密还原出mp3文件
     audioDecoding(aSong, newSong, keyBox);

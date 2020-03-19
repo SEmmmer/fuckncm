@@ -38,6 +38,8 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     fseek(ncmFile, 0, SEEK_END);
     long fileSize = ftell(ncmFile);
     fseek(ncmFile, position, SEEK_SET);
+    printf("%ld\n", position);
+    printf("%ld\n", fileSize);
 
     int j = 0;
     unsigned char chunk[0x8000] = {0};
