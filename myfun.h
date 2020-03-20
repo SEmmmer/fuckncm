@@ -14,6 +14,7 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
 
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
     for (int n = 0; n < size; ++n) { if (message[n] == 0x7D) { message[n + 1] = '\0'; }}
+//    for (int n = 0; n < size; ++n) { if (message[n] == 0x4C && message[n + 1] == 0x62) { message[n + 2] = '\0'; }}
     for (int i = 0; i <= size; ++i) { *(outData + i) = message[i]; }
     printf("%s\n", message);
 }
@@ -53,7 +54,7 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     printf("0x%x\n", keyBox[54]);
     printf("0x%x\n", keyBox[231]);
 
-    for (long loop = 0; loop <= (fileSize - position)/chunkLength ; loop++) {
+    for (long loop = 0; loop <= (fileSize - position) / chunkLength; loop++) {
         fread(chunk, chunkLength, 1, ncmFile);
         for (int i = 1; i < chunkLength + 1; ++i) {
             j = i & 0xff;

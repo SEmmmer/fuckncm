@@ -16,10 +16,16 @@ int main() {
     FILE *newSong = NULL;
     FILE *newJson = NULL;
     FILE *cover = NULL;
-    aSong = fopen("tmp/new.ncm", "rb");
+    FILE *rc4 = NULL;
+
+
+//    aSong = fopen("tmp/new.ncm", "rb");
+    aSong = fopen("tmp/128_534.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
     cover = fopen("tmp/cover", "wb");
+    remove("tmp/rc4");
+    rc4 = fopen("tmp/rc4", "wb");
 
     unsigned char buffer[9];
     fread(buffer, 8, 1, aSong);
@@ -37,14 +43,19 @@ int main() {
     //在解密前对key做异或运算，原理未知
 
     unsigned char messageOfKey[keyLength];
-    unsigned char rc4Key[keyLength - 17];
+    unsigned char rc4Key[keyLength];
     //开始第一部分的解密，还原key之后用于还原媒体文件
     AES_Decryption(keyData, firstKey, keyLength, messageOfKey);
-    for (int k = 17; k < keyLength; ++k) { rc4Key[k - 17] = messageOfKey[k]; }
+    for (int k = 17; messageOfKey[k - 2] != 'L' || messageOfKey[k - 1] != 'b'; ++k) {
+        fwrite(messageOfKey + k, 1, 1, rc4);
+        rc4Key[k - 17] = messageOfKey[k];
+    }
+    fseek(rc4, 0, SEEK_END);
+
 
     //第二部分的解密，用的是RC4的算法，通过rc4Key计算keyBox
     unsigned char keyBox[256];
-    RC4_Decryption(rc4Key, keyLength - 18, keyBox);
+    RC4_Decryption(rc4Key, ftell(rc4), keyBox);
 
     //回到文件继续读取meta，其中包含了歌曲的主要信息
     int metaLength = 0;

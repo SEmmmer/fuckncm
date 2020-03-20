@@ -27,7 +27,7 @@ int main() {
     //两段从天上掉下来的密钥
     FILE *aSong = NULL;
     FILE *newSong = NULL;
-    aSong = fopen("tmp/test.ncm", "rb");
+    aSong = fopen("tmp/144_534.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
 
     unsigned char buffer[8];
