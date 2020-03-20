@@ -20,7 +20,7 @@ int main() {
 //    aSong = fopen("tmp/new.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
-    cover = fopen("tmp/cover.jpeg", "wb");
+    cover = fopen("tmp/cover", "wb");
 
     unsigned char buffer[9];
     fread(buffer, 8, 1, aSong);
@@ -67,17 +67,13 @@ int main() {
 
     //获得歌曲的封面信息
     fseek(aSong, 9, SEEK_CUR);
-    int imageSpace = 0;
     int imageSize = 0;
-    fread(&imageSpace, sizeof(int), 1, aSong);
-//    fread(&imageSize, sizeof(int), 1, aSong);
+    fread(&imageSize, sizeof(int), 1, aSong);
     unsigned char imageData[imageSize];
     fread(&imageData, imageSize, 1, aSong);
     fwrite(&imageData, imageSize, 1, cover);
-    fseek(aSong, imageSpace - imageSize, SEEK_CUR);
-
-
     //最重要的部分，对文件进行解密还原出mp3文件
+
     audioDecoding(aSong, newSong, keyBox);
 
     free(keyData);
