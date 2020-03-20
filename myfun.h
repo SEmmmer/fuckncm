@@ -53,7 +53,7 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     printf("0x%x\n", keyBox[54]);
     printf("0x%x\n", keyBox[231]);
 
-    for (long loop = 0; loop <= (fileSize - position) / 32768; loop++) {
+    for (long loop = 0; loop <= (fileSize - position)/chunkLength ; loop++) {
         fread(chunk, chunkLength, 1, ncmFile);
         for (int i = 1; i < chunkLength + 1; ++i) {
             j = i & 0xff;
