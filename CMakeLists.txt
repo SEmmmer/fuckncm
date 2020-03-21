@@ -13,6 +13,7 @@ link_directories(/usr/local/Cellar/json-c/0.13.1/lib)
 add_executable(fuckncm main.c otherFun/base64.c)
 add_executable(test test.c)
 add_executable(test2 test2.c)
+add_executable(tags addCover.c)
 
 target_link_libraries(fuckncm ssl crypto)
 target_link_libraries(test2 ssl crypto)

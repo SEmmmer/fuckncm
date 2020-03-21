@@ -14,7 +14,6 @@ void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_
 
     for (int j = 0; j < size / 16; ++j) { AES_ecb_encrypt(data + 16 * j, message + 16 * j, &key, AES_DECRYPT); }
     for (int n = 0; n < size; ++n) { if (message[n] == 0x7D) { message[n + 1] = '\0'; }}
-//    for (int n = 0; n < size; ++n) { if (message[n] == 0x4C && message[n + 1] == 0x62) { message[n + 2] = '\0'; }}
     for (int i = 0; i <= size; ++i) { *(outData + i) = message[i]; }
     printf("%s\n", message);
 }
