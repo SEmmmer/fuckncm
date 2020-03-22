@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int main() {
     FILE *fp = fopen("tmp/ooo.mp3", "rb");
     FILE *co = fopen("tmp/cover", "wb");
