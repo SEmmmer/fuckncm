@@ -22,7 +22,7 @@ add_executable(tags2 addCov.cpp)
 target_link_libraries(fuckncm ssl crypto)
 target_link_libraries(test2 ssl crypto)
 target_link_libraries(test json-c)
-#target_link_libraries(tags2 )
+target_link_libraries(tags2 tag json-c)
 
 
 add_library(base64 STATIC otherFun/base64.c)
