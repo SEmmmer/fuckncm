@@ -18,7 +18,7 @@ void setTag() {
 
 }
 
-void buffer(){
+void buffer() {
     std::string title = "中文测试";
     const std::string &s = title;
     TagLib::String give_me_a_name(s, Type);
@@ -35,8 +35,26 @@ void buffer(){
 }
 
 int main() {
+    struct json_object *im = nullptr;
+    im = json_object_from_file("tmp/tmp.json");
+    printf("%s\n", json_object_to_json_string(im));
+    struct json_object *result = nullptr;
 
+    result = json_object_object_get(im, "musicName");
+    std::string buffer;
+    printf("%s\n", json_object_to_json_string(result));
 
+    result = json_object_object_get(im, "artist");
+    printf("%s\n", json_object_to_json_string(result));
+
+    result = json_object_object_get(im, "album");
+    printf("%s\n", json_object_to_json_string(result));
+
+    result = json_object_object_get(im, "bitrate");
+    printf("%s\n", json_object_to_json_string(result));
+
+    result = json_object_object_get(im, "format");
+    printf("%s\n", json_object_to_json_string(result));
 
 
     return 0;
