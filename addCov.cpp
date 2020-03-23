@@ -2,9 +2,9 @@
 // Created by Shirakami Emmmer on 2020/3/22.
 //
 //#define Type TagLib::String::UTF8
-
-#include <iostream>
+#include <map>
 #include <string>
+#include <iostream>
 #include <json-c/json.h>
 #include <taglib/taglib.h>
 #include <taglib/fileref.h>
@@ -42,9 +42,34 @@ void fixStr(std::string &str, size_t size) {
     }
 }
 
+std::string addArtist(struct json_object *jsonFile) {
+    struct json_object *iter = nullptr;
+    struct json_object *result = json_object_object_get(jsonFile, "artist");
+
+    std::string allArtist;
+    std::string eachArtist;
+
+    for (int i = 0; i < json_object_array_length(result); ++i) {
+        iter = json_object_array_get_idx(result, i);
+        iter = json_object_array_get_idx(iter, 0);
+        eachArtist = json_object_to_json_string(iter);
+        fixStr(eachArtist, eachArtist.size());
+        if (i == json_object_array_length(result) - 1) {
+            allArtist += eachArtist;
+            break;
+        } else {
+            eachArtist[eachArtist.size() - 1] = 0x20;
+            eachArtist[eachArtist.size() - 2] = 0x2C;
+            allArtist += eachArtist;
+        }
+    }
+    return allArtist;
+}
+
 int main() {
 //    TagLib::String::Type T = TagLib::String::UTF16;
     TagLib::FileRef f("tmp/nocov.mp3");
+    TagLib::FileRef g("tmp/yescov.mp3");
 
     struct json_object *jsonP = nullptr;
     struct json_object *result = nullptr;
@@ -57,10 +82,9 @@ int main() {
     TagLib::String musicName(buffer, TagLib::String::UTF8);
     f.tag()->setTitle(musicName);
 
+    TagLib::String artist(addArtist(jsonP), TagLib::String::UTF8);
+    f.tag()->setArtist(artist);
 
-    result = json_object_object_get(jsonP, "artist");
-
-    printf("%s\n", json_object_to_json_string(result));
 
     result = json_object_object_get(jsonP, "album");
     printf("%s\n", json_object_to_json_string(result));
@@ -72,5 +96,6 @@ int main() {
     printf("%s\n", json_object_to_json_string(result));
 
     f.save();
+
     return 0;
 }
