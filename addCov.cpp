@@ -30,6 +30,18 @@ void buffer() {
 //    f.save();
 }
 
+void fixStr(std::string &str, size_t size) {
+    for (int i = 0; i < size; ++i) {
+        str[i] = str[i + 1];
+    }
+    for (int j = size;; --j) {
+        if (str[j] == 0x22) {
+            str[j] = '\0';
+            break;
+        }
+    }
+}
+
 int main() {
 //    TagLib::String::Type T = TagLib::String::UTF16;
     TagLib::FileRef f("tmp/nocov.mp3");
@@ -40,15 +52,14 @@ int main() {
 
     result = json_object_object_get(jsonP, "musicName");
     std::string buffer = json_object_to_json_string(result);
-    const std::string &buf = buffer;
-    TagLib::String musicName(buf, TagLib::String::UTF8);
+    fixStr(buffer, buffer.size());
+
+    TagLib::String musicName(buffer, TagLib::String::UTF8);
     f.tag()->setTitle(musicName);
 
 
-    std::cout << buffer << std::endl;
-
-
     result = json_object_object_get(jsonP, "artist");
+
     printf("%s\n", json_object_to_json_string(result));
 
     result = json_object_object_get(jsonP, "album");
