@@ -14,15 +14,16 @@ link_directories(/usr/local/Cellar/taglib/1.11.1/lib)
 
 
 add_executable(fuckncm main.c otherFun/base64.c)
+add_executable(addCover addCov.cpp)
 add_executable(test test.c)
 add_executable(test2 test2.c)
 add_executable(tags addCover.c)
-add_executable(tags2 addCov.cpp)
 
 target_link_libraries(fuckncm ssl crypto)
+target_link_libraries(addCover tag json-c)
+
 target_link_libraries(test2 ssl crypto)
 target_link_libraries(test json-c)
-target_link_libraries(tags2 tag json-c)
 
 
 add_library(base64 STATIC otherFun/base64.c)
