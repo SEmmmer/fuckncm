@@ -1,7 +1,7 @@
 //
 // Created by Shirakami Emmmer on 2020/3/22.
 //
-#define Type TagLib::String::UTF8
+//#define Type TagLib::String::UTF8
 
 #include <iostream>
 #include <string>
@@ -19,43 +19,47 @@ void setTag() {
 }
 
 void buffer() {
-    std::string title = "中文测试";
-    const std::string &s = title;
-    TagLib::String give_me_a_name(s, Type);
 
-    TagLib::FileRef f("tmp/nocov.mp3");
-    f.tag()->setArtist(give_me_a_name);
-    f.tag()->setAlbum(s);
-    f.tag()->setTitle(s);
-    f.tag()->setComment(title);
-    f.tag()->setGenre(title);
-    f.tag()->setTrack(1);
-    f.tag()->setYear(1);
-    f.save();
+//    f.tag()->setArtist(give_me_a_name);
+//    f.tag()->setAlbum(s);
+//    f.tag()->setTitle(s);
+//    f.tag()->setComment(title);
+//    f.tag()->setGenre(title);
+//    f.tag()->setTrack(1);
+//    f.tag()->setYear(1);
+//    f.save();
 }
 
 int main() {
-    struct json_object *im = nullptr;
-    im = json_object_from_file("tmp/tmp.json");
-    printf("%s\n", json_object_to_json_string(im));
+//    TagLib::String::Type T = TagLib::String::UTF16;
+    TagLib::FileRef f("tmp/nocov.mp3");
+
+    struct json_object *jsonP = nullptr;
     struct json_object *result = nullptr;
+    jsonP = json_object_from_file("tmp/tmp.json");
 
-    result = json_object_object_get(im, "musicName");
-    std::string buffer;
+    result = json_object_object_get(jsonP, "musicName");
+    std::string buffer = json_object_to_json_string(result);
+    const std::string &buf = buffer;
+    TagLib::String musicName(buf, TagLib::String::UTF8);
+    f.tag()->setTitle(musicName);
+
+
+    std::cout << buffer << std::endl;
+
+
+    result = json_object_object_get(jsonP, "artist");
     printf("%s\n", json_object_to_json_string(result));
 
-    result = json_object_object_get(im, "artist");
+    result = json_object_object_get(jsonP, "album");
     printf("%s\n", json_object_to_json_string(result));
 
-    result = json_object_object_get(im, "album");
+    result = json_object_object_get(jsonP, "bitrate");
     printf("%s\n", json_object_to_json_string(result));
 
-    result = json_object_object_get(im, "bitrate");
+    result = json_object_object_get(jsonP, "format");
     printf("%s\n", json_object_to_json_string(result));
 
-    result = json_object_object_get(im, "format");
-    printf("%s\n", json_object_to_json_string(result));
-
-
+    f.save();
     return 0;
 }
