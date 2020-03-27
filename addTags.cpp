@@ -1,11 +1,8 @@
 //
 // Created by Shirakami Emmmer on 2020/3/22.
 //
-#include <map>
 #include <string>
-#include <iostream>
 #include <json-c/json.h>
-#include <taglib/taglib.h>
 #include <taglib/fileref.h>
 #include <taglib/tstring.h>
 
@@ -66,7 +63,6 @@ int main() {
     fixStr(buffer, buffer.size());
     TagLib::String album(buffer, TagLib::String::UTF8);
     f.tag()->setAlbum(album);
-
 
     f.save();
     return 0;

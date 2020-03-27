@@ -4,7 +4,6 @@
 #include <openssl/aes.h>
 #include "otherFun/base64.h"
 #include "myfun.h"
-#include <json-c/json.h>
 
 int main() {
     const unsigned char firstKey[] = {0x68, 0x7A, 0x48, 0x52, 0x41, 0x6D, 0x73, 0x6F,
