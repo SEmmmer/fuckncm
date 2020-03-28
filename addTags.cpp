@@ -49,8 +49,20 @@ std::string addArtist(struct json_object *jsonFile) {
 }
 
 int main() {
+    FILE *cover = fopen("tmp/cover.jpeg", "rb");
+    fseek(cover, 0, SEEK_END);
+    long size = ftell(cover);
+    fseek(cover, 0, SEEK_SET);
+
+    unsigned char bCover[size];
+    fread(bCover, size, 1, cover);
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
     TagLib::File *rawSong;
+    TagLib::ByteVector vector(reinterpret_cast<const char *>(bCover), size);
+
+
     rawSong = new TagLib::MPEG::File("tmp/out.mp3");
     struct json_object *jsonP = nullptr;
     struct json_object *result = nullptr;
@@ -74,10 +86,13 @@ int main() {
     rawSong->tag()->setAlbum(album);
 
 
-//    TagLib::ByteVector image = fopen("tmp/cover.jpeg");
-    auto *cover = new TagLib::ID3v2::AttachedPictureFrame;
-//    cover->setPicture();
+    auto tag = dynamic_cast<TagLib::MPEG::File *>(rawSong)->ID3v2Tag(true);
+    auto *frame = new TagLib::ID3v2::AttachedPictureFrame;
+    frame->setMimeType("image/jpeg");
+    frame->setPicture(vector);
+    dynamic_cast<TagLib::ID3v2::Tag *>(tag)->addFrame(frame);
 
     rawSong->save();
+    delete frame;
     return 0;
 }

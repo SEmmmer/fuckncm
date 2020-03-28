@@ -19,7 +19,6 @@ int main() {
 
 
     aSong = fopen("tmp/new.ncm", "rb");
-//    aSong = fopen("tmp/128_534.ncm", "rb");
     newSong = fopen("tmp/out.mp3", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
     cover = fopen("tmp/cover.jpeg", "wb");

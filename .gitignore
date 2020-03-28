@@ -40,4 +40,4 @@ build/
 java-out
 
 CMakeFiles/
-tmp/
+cmake-build-debug/tmp/
