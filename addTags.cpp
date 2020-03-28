@@ -3,8 +3,15 @@
 //
 #include <string>
 #include <json-c/json.h>
+#include <taglib/mpegfile.h>
+
+#include <taglib/id3v2tag.h>
+#include <taglib/tag.h>
 #include <taglib/fileref.h>
+
 #include <taglib/tstring.h>
+#include <taglib/attachedpictureframe.h>
+
 
 void fixStr(std::string &str, size_t size) {
     for (int i = 0; i < size; ++i) { str[i] = str[i + 1]; }
@@ -42,8 +49,9 @@ std::string addArtist(struct json_object *jsonFile) {
 }
 
 int main() {
-    TagLib::FileRef f("tmp/out.mp3");
 
+    TagLib::File *rawSong;
+    rawSong = new TagLib::MPEG::File("tmp/out.mp3");
     struct json_object *jsonP = nullptr;
     struct json_object *result = nullptr;
     std::string buffer;
@@ -53,17 +61,23 @@ int main() {
     buffer = json_object_to_json_string(result);
     fixStr(buffer, buffer.size());
     TagLib::String musicName(buffer, TagLib::String::UTF8);
-    f.tag()->setTitle(musicName);
+    rawSong->tag()->setTitle(musicName);
+
 
     TagLib::String artist(addArtist(jsonP), TagLib::String::UTF8);
-    f.tag()->setArtist(artist);
+    rawSong->tag()->setArtist(artist);
 
     result = json_object_object_get(jsonP, "album");
     buffer = json_object_to_json_string(result);
     fixStr(buffer, buffer.size());
     TagLib::String album(buffer, TagLib::String::UTF8);
-    f.tag()->setAlbum(album);
+    rawSong->tag()->setAlbum(album);
 
-    f.save();
+
+//    TagLib::ByteVector image = fopen("tmp/cover.jpeg");
+    auto *cover = new TagLib::ID3v2::AttachedPictureFrame;
+//    cover->setPicture();
+
+    rawSong->save();
     return 0;
 }
