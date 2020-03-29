@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/aes.h>
 #include "otherFun/base64.h"
 #include "myfun.h"
 

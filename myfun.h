@@ -5,6 +5,9 @@
 #ifndef FUCKNCM_MYFUN_H
 #define FUCKNCM_MYFUN_H
 
+#include <openssl/aes.h>
+#include <stdio.h>
+
 void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
     AES_KEY key;
     private_AES_set_decrypt_key(inKey, 128, &key);
@@ -62,5 +65,6 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
         fwrite(chunk, chunkLength, 1, outFile);
     }
 }
+
 
 #endif //FUCKNCM_MYFUN_H

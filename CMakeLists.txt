@@ -15,13 +15,12 @@ link_directories(/usr/local/Cellar/taglib/1.11.1/lib)
 link_directories(/usr/local/Cellar/ffmpeg/4.2.1_1/lib)
 
 add_executable(fuckncm main.c otherFun/base64.c)
-add_executable(addTag addTags.cpp)
-add_executable(addCover addCover.c)
+add_executable(addTags addTags.cpp)
 
 add_executable(test2 test2.c)
 
 target_link_libraries(fuckncm ssl crypto)
-target_link_libraries(addTag tag json-c)
+target_link_libraries(addTags tag json-c)
 
 target_link_libraries(test2 ssl crypto)
 
