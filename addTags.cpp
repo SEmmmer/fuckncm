@@ -87,6 +87,7 @@ void setTags(json_object *jsonP, FILE *cover) {
         picture->setType(TagLib::FLAC::Picture::FrontCover);
         picture->setData(vectorCover);
         dynamic_cast<TagLib::FLAC::File *>(rawSong)->addPicture(picture);
+
         rawSong->save();
     } else if (memcmp(buffer.c_str(), "mp3", 3) == 0) {
         rawSong = new TagLib::MPEG::File("tmp/out.mp3");
@@ -102,7 +103,6 @@ void setTags(json_object *jsonP, FILE *cover) {
         rawSong->save();
     }
 };
-
 
 
 int main() {

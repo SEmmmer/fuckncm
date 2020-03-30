@@ -6,6 +6,7 @@
 #define FUCKNCM_MYFUN_H
 
 #include <openssl/aes.h>
+#include <json-c/json.h>
 #include <stdio.h>
 
 void AES_Decryption(const unsigned char *data, const unsigned char *inKey, size_t size, unsigned char *outData) {
@@ -63,5 +64,8 @@ void audioDecoding(FILE *ncmFile, FILE *outFile, const unsigned char *keyBox) {
     }
 }
 
+void changeName(FILE *oldFile, FILE *jsonMessage) {
+
+}
 
 #endif //FUCKNCM_MYFUN_H

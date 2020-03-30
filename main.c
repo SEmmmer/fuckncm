@@ -17,12 +17,19 @@ int main() {
     FILE *rc4 = NULL;
 
 
-//    aSong = fopen("tmp/new.ncm", "rb");
-    aSong = fopen("tmp/newflac.ncm", "rb");
-    newSong = fopen("tmp/out.flac", "wb");
-    newJson = fopen("tmp/tmp.json", "wb");
-    cover = fopen("tmp/cover.jpeg", "wb");
+    aSong = fopen("tmp/new.ncm", "rb");
+
     remove("tmp/rc4");
+    remove("tmp/cover.jpeg");
+    remove("tmp/tmp.out");
+    remove("tmp/tmp.json");
+
+    newSong = fopen("tmp/tmp.out", "wb");
+
+    newJson = fopen("tmp/tmp.json", "wb");
+
+    cover = fopen("tmp/cover.jpeg", "wb");
+
     rc4 = fopen("tmp/rc4", "wb");
 
     unsigned char buffer[9];
@@ -83,6 +90,7 @@ int main() {
     //最重要的部分，对文件进行解密还原出mp3文件
 
     audioDecoding(aSong, newSong, keyBox);
+    changeName(newSong, newJson);
 
     free(keyData);
     free(metaData);
