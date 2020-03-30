@@ -17,9 +17,9 @@ int main() {
     FILE *rc4 = NULL;
 
 
-    aSong = fopen("tmp/new.ncm", "rb");
-//    aSong = fopen("tmp/newflac.ncm", "rb");
-    newSong = fopen("tmp/out", "wb");
+//    aSong = fopen("tmp/new.ncm", "rb");
+    aSong = fopen("tmp/newflac.ncm", "rb");
+    newSong = fopen("tmp/out.flac", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
     cover = fopen("tmp/cover.jpeg", "wb");
     remove("tmp/rc4");

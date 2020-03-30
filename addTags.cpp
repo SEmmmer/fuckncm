@@ -53,47 +53,61 @@ long readCover(FILE *cover) {
     return size;
 }
 
-void setMPEGTags(TagLib::MPEG::File *rawSong, json_object *jsonP, FILE *cover) {
+void setTags(json_object *jsonP, FILE *cover) {
+    TagLib::Tag *tags;
     std::string buffer;
+    TagLib::File *rawSong;
     struct json_object *result = nullptr;
     unsigned char bCover[readCover(cover)];
     fread(bCover, readCover(cover), 1, cover);
-    auto frame = new TagLib::ID3v2::AttachedPictureFrame;
-    auto tags = dynamic_cast<TagLib::MPEG::File *>(rawSong)->ID3v2Tag(true);
-    TagLib::ByteVector vector(reinterpret_cast<const char *>(bCover), readCover(cover));
+    TagLib::ByteVector vectorCover(reinterpret_cast<const char *>(bCover), readCover(cover));
 
     result = json_object_object_get(jsonP, "musicName");
     buffer = json_object_to_json_string(result);
     fixStr(buffer, buffer.size());
     TagLib::String musicName(buffer, TagLib::String::UTF8);
-    tags->setTitle(musicName);
-
     TagLib::String artist(addArtist(jsonP), TagLib::String::UTF8);
-    tags->setArtist(artist);
-
     result = json_object_object_get(jsonP, "album");
     buffer = json_object_to_json_string(result);
     fixStr(buffer, buffer.size());
     TagLib::String album(buffer, TagLib::String::UTF8);
-    tags->setAlbum(album);
 
-    frame->setMimeType("image/jpeg");
-    frame->setPicture(vector);
-    dynamic_cast<TagLib::ID3v2::Tag *>(tags)->addFrame(frame);
+    buffer = json_object_to_json_string(json_object_object_get(jsonP, "format"));
+    fixStr(buffer, buffer.size());
 
-    rawSong->save();
-    delete frame;
-}
+    if (memcmp(buffer.c_str(), "flac", 3) == 0) {
+        rawSong = new TagLib::FLAC::File("tmp/out.flac");
+        tags = rawSong->tag();
+        tags->setTitle(musicName);
+        tags->setArtist(artist);
+        tags->setAlbum(album);
 
-void setFLACTags(TagLib::FLAC::File *rawSong, json_object *jsonP, FILE *cover) {
+        auto picture = new TagLib::FLAC::Picture;
+        picture->setMimeType("image/jpeg");
+        picture->setType(TagLib::FLAC::Picture::FrontCover);
+        picture->setData(vectorCover);
+        dynamic_cast<TagLib::FLAC::File *>(rawSong)->addPicture(picture);
+        rawSong->save();
+    } else if (memcmp(buffer.c_str(), "mp3", 3) == 0) {
+        rawSong = new TagLib::MPEG::File("tmp/out.mp3");
+        tags = dynamic_cast<TagLib::MPEG::File *>(rawSong)->ID3v2Tag(true);
+        tags->setTitle(musicName);
+        tags->setArtist(artist);
+        tags->setAlbum(album);
 
-}
+        auto picture = new TagLib::ID3v2::AttachedPictureFrame;
+        picture->setMimeType("image/jpeg");
+        picture->setPicture(vectorCover);
+        dynamic_cast<TagLib::ID3v2::Tag *>(tags)->addFrame(picture);
+        rawSong->save();
+    }
+};
+
+
 
 int main() {
     auto cover = fopen("tmp/cover.jpeg", "rb");
-    auto rawSong = new TagLib::MPEG::File("tmp/out.mp3");
     auto jsonP = json_object_from_file("tmp/tmp.json");
-if(memcmp(json_object_to_json_string(json_object_object_get(jsonP, "format")),"",1)
-    setMPEGTags(rawSong, jsonP, cover);
+    setTags(jsonP, cover);
     return 0;
 }
