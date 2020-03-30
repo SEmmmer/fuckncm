@@ -4,6 +4,7 @@
 #include <string>
 #include <json-c/json.h>
 #include <taglib/mpegfile.h>
+#include <taglib/flacfile.h>
 #include <taglib/id3v2tag.h>
 #include <taglib/fileref.h>
 #include <taglib/tstring.h>
@@ -45,21 +46,21 @@ std::string addArtist(struct json_object *jsonFile) {
     return allArtist;
 }
 
-long readFile(FILE *file) {
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+long readCover(FILE *cover) {
+    fseek(cover, 0, SEEK_END);
+    long size = ftell(cover);
+    fseek(cover, 0, SEEK_SET);
     return size;
 }
 
-void setTags(TagLib::MPEG::File *rawSong, json_object *jsonP, FILE *cover) {
+void setMPEGTags(TagLib::MPEG::File *rawSong, json_object *jsonP, FILE *cover) {
     std::string buffer;
     struct json_object *result = nullptr;
-    unsigned char bCover[readFile(cover)];
-    fread(bCover, readFile(cover), 1, cover);
+    unsigned char bCover[readCover(cover)];
+    fread(bCover, readCover(cover), 1, cover);
     auto frame = new TagLib::ID3v2::AttachedPictureFrame;
     auto tags = dynamic_cast<TagLib::MPEG::File *>(rawSong)->ID3v2Tag(true);
-    TagLib::ByteVector vector(reinterpret_cast<const char *>(bCover), readFile(cover));
+    TagLib::ByteVector vector(reinterpret_cast<const char *>(bCover), readCover(cover));
 
     result = json_object_object_get(jsonP, "musicName");
     buffer = json_object_to_json_string(result);
@@ -84,11 +85,15 @@ void setTags(TagLib::MPEG::File *rawSong, json_object *jsonP, FILE *cover) {
     delete frame;
 }
 
+void setFLACTags(TagLib::FLAC::File *rawSong, json_object *jsonP, FILE *cover) {
+
+}
+
 int main() {
     auto cover = fopen("tmp/cover.jpeg", "rb");
     auto rawSong = new TagLib::MPEG::File("tmp/out.mp3");
     auto jsonP = json_object_from_file("tmp/tmp.json");
-
-    setTags(rawSong, jsonP, cover);
+if(memcmp(json_object_to_json_string(json_object_object_get(jsonP, "format")),"",1)
+    setMPEGTags(rawSong, jsonP, cover);
     return 0;
 }

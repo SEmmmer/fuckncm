@@ -18,7 +18,8 @@ int main() {
 
 
     aSong = fopen("tmp/new.ncm", "rb");
-    newSong = fopen("tmp/out.mp3", "wb");
+//    aSong = fopen("tmp/newflac.ncm", "rb");
+    newSong = fopen("tmp/out", "wb");
     newJson = fopen("tmp/tmp.json", "wb");
     cover = fopen("tmp/cover.jpeg", "wb");
     remove("tmp/rc4");
