@@ -30,6 +30,7 @@
 
 # Logs
 *.log
+*.xml
 
 .idea/
 .vscode/
