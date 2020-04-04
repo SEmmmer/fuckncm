@@ -76,7 +76,7 @@ void setTags(json_object *jsonP, FILE *cover) {
     fixStr(buffer, buffer.size());
 
     if (memcmp(buffer.c_str(), "flac", 3) == 0) {
-        rawSong = new TagLib::FLAC::File("tmp/out.flac");
+        rawSong = new TagLib::FLAC::File("tmp/tmp.out");
         tags = rawSong->tag();
         tags->setTitle(musicName);
         tags->setArtist(artist);
@@ -90,7 +90,7 @@ void setTags(json_object *jsonP, FILE *cover) {
 
         rawSong->save();
     } else if (memcmp(buffer.c_str(), "mp3", 3) == 0) {
-        rawSong = new TagLib::MPEG::File("tmp/out.mp3");
+        rawSong = new TagLib::MPEG::File("tmp/tmp.out");
         tags = dynamic_cast<TagLib::MPEG::File *>(rawSong)->ID3v2Tag(true);
         tags->setTitle(musicName);
         tags->setArtist(artist);
